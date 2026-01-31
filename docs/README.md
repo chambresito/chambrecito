@@ -29,6 +29,9 @@ docs/
 
 ## Quick Links
 
+### Tasks
+- [Actionable Tasks](./TASKS.md) - Implementation checklist organized by category
+
 ### Architecture
 - [System Flow](./architecture/system-flow.md) - The complete 9-step processing pipeline
 - [Database Mapping](./architecture/database-mapping.md) - Which endpoints touch which tables
