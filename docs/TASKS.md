@@ -6,14 +6,16 @@ This document contains all actionable implementation tasks extracted from the do
 
 ## Overview
 
-| Category        | Tasks | Priority |
-| --------------- | ----- | -------- |
-| Database        | 12    | High     |
-| Row Level Security | 6  | High     |
-| Edge Functions  | 3     | High     |
-| API Endpoints   | 10    | Medium   |
-| Frontend        | 4     | Medium   |
-| Configuration   | 5     | High     |
+| Category            | Tasks  | Priority |
+| ------------------- | ------ | -------- |
+| Database            | 12     | High     |
+| Row Level Security  | 6      | High     |
+| Edge Functions      | 3      | High     |
+| API Endpoints       | 10     | Medium   |
+| Frontend            | 4      | Medium   |
+| Configuration       | 5      | High     |
+| Safety & Compliance | 9      | High     |
+| **Total**           | **49** |          |
 
 ---
 
@@ -22,30 +24,37 @@ This document contains all actionable implementation tasks extracted from the do
 ### 1.1 Create Tables
 
 - [ ] **DB-01**: Create `markets` table
-  - Fields: `id`, `question`, `subject_type`, `resolves_at`, `verification_source_url`, `status`, `created_at`
+
+  - Fields: `id`, `question`, `subject_type`, `resolves_at`, `verification_source_url`, `verification_required`, `status`, `created_at`
   - Status ENUM: `open`, `resolved`, `disabled`
   - Subject type ENUM: `public_figure`, `organization`, `protocol`, `event`
+  - `verification_required` defaults to `true`
 
 - [ ] **DB-02**: Create `predictions` table
+
   - Fields: `id`, `user_id`, `market_id`, `side`, `tokens_used`, `created_at`
   - Foreign key to `markets`
   - Foreign key to auth.users
 
 - [ ] **DB-03**: Create `token_ledger` table (append-only, immutable)
+
   - Fields: `id`, `user_id`, `vudy_tx_id`, `action`, `amount`, `related_prediction_id`, `created_at`
   - UNIQUE constraint on `vudy_tx_id`
   - Action ENUM: `consume`
   - No UPDATE or DELETE allowed
 
 - [ ] **DB-04**: Create `resolution_rules` table
+
   - Fields: `id`, `market_id`, `rule_type`, `source_url`, `expected_outcome`, `created_at`
   - Deterministic resolution logic storage
 
 - [ ] **DB-05**: Create `market_snapshots` table
+
   - Fields: `id`, `market_id`, `yes_tokens`, `no_tokens`, `participants`, `taken_at`
   - Time-series data for aggregate consensus
 
 - [ ] **DB-06**: Create `user_roles` table
+
   - Fields: `id`, `user_id`, `role`, `created_at`
   - Role ENUM: `user`, `admin`
 
@@ -152,6 +161,7 @@ This document contains all actionable implementation tasks extracted from the do
 ### 5.1 Pages
 
 - [ ] **FE-01**: Create market list page (`/markets`)
+
   - Display open markets
   - Use neutral language ("participation credits")
   - No gambling terminology
@@ -164,6 +174,7 @@ This document contains all actionable implementation tasks extracted from the do
 ### 5.2 Components
 
 - [ ] **FE-03**: Create prediction modal
+
   - Select YES/NO
   - Confirm credits to use
   - Submit prediction
@@ -180,11 +191,13 @@ This document contains all actionable implementation tasks extracted from the do
 ### 6.1 Environment Variables
 
 - [ ] **CFG-01**: Set up Supabase environment variables
+
   - `SUPABASE_URL`
   - `SUPABASE_ANON_KEY`
   - `SUPABASE_SERVICE_ROLE_KEY`
 
 - [ ] **CFG-02**: Set up Vudy API environment variables
+
   - `VUDY_API_URL`
   - `VUDY_API_KEY`
 
@@ -211,6 +224,7 @@ This document contains all actionable implementation tasks extracted from the do
 - [ ] **SAFE-06**: Verify safety filters reject >90% of candidates
 - [ ] **SAFE-07**: Verify neutral language used (no gambling terms)
 - [ ] **SAFE-08**: Verify reputation points separate from token logic
+- [ ] **SAFE-09**: Verify users cannot create markets (system-only)
 
 ---
 
@@ -235,7 +249,7 @@ API-01 → API-10
 FE-01 → FE-04
      │
      ▼
-SAFE-01 → SAFE-08
+SAFE-01 → SAFE-09
 ```
 
 ---
@@ -247,4 +261,4 @@ SAFE-01 → SAFE-08
 3. **Phase 3 (Frontend)**: FE-01, FE-02, FE-03, FE-04
 4. **Phase 4 (Ingestion)**: EF-03, API-01, API-02, API-03
 5. **Phase 5 (Resolution)**: API-08, API-09, API-10
-6. **Phase 6 (Validation)**: SAFE-*
+6. **Phase 6 (Validation)**: SAFE-\*
