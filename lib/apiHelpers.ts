@@ -47,6 +47,15 @@ function getRoleFromJwt(token: string): string {
 export async function getAuthenticatedUser(
   req: NextRequest
 ): Promise<ApiUser | ApiError> {
+  // Dev bypass check
+  if (process.env.DEV_BYPASS_AUTH === "true") {
+    return {
+      id: process.env.DEV_USER_ID ?? "00000000-0000-0000-0000-000000000001",
+      email: process.env.DEV_USER_EMAIL ?? "dev@example.com",
+      role: process.env.DEV_USER_ROLE ?? "admin",
+    };
+  }
+
   const token = getBearerToken(req);
   if (!token) {
     return { error: "missing_auth", status: 401 };
