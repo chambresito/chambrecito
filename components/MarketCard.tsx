@@ -14,12 +14,14 @@ export function MarketCard({
   topic_text,
   question_text,
   status,
-  ends_at
+  ends_at,
 }: MarketCardProps) {
   return (
     <div className="rounded-lg border border-neutral-200 p-4 shadow-sm">
       <div className="text-sm text-neutral-500">{topic_text}</div>
-      <h3 className="mt-2 text-lg font-semibold text-neutral-900">{question_text}</h3>
+      <h3 className="mt-2 text-lg font-semibold text-neutral-900">
+        {question_text}
+      </h3>
       <div className="mt-2 text-sm text-neutral-600">
         Cierre: {formatDateTime(ends_at)}
       </div>

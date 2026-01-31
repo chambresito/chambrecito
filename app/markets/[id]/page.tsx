@@ -11,7 +11,9 @@ export default async function MarketPage({ params }: MarketPageProps) {
 
   const { data: market, error } = await supabase
     .from("markets")
-    .select("id, topic_text, question_text, description, status, ends_at, starts_at")
+    .select(
+      "id, topic_text, question_text, description, status, ends_at, starts_at",
+    )
     .eq("id", params.id)
     .maybeSingle();
 

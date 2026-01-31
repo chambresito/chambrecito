@@ -12,7 +12,10 @@ type PredictionModalProps = {
 
 const DEFAULT_AMOUNT = 10;
 
-export function PredictionModal({ marketId, marketStatus }: PredictionModalProps) {
+export function PredictionModal({
+  marketId,
+  marketStatus,
+}: PredictionModalProps) {
   const [choice, setChoice] = useState<"yes" | "no">("yes");
   const [amount, setAmount] = useState(DEFAULT_AMOUNT);
   const [message, setMessage] = useState<string | null>(null);
@@ -37,19 +40,19 @@ export function PredictionModal({ marketId, marketStatus }: PredictionModalProps
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
         market_id: marketId,
         choice,
-        amount
-      })
+        amount,
+      }),
     });
 
     if (!response.ok) {
       const errorPayload = await response.json().catch(() => ({}));
       setMessage(
-        errorPayload?.error ?? "No se pudo registrar tu participación."
+        errorPayload?.error ?? "No se pudo registrar tu participación.",
       );
       return;
     }
@@ -63,7 +66,8 @@ export function PredictionModal({ marketId, marketStatus }: PredictionModalProps
         Participar con créditos
       </h3>
       <p className="mt-1 text-sm text-neutral-600">
-        Los créditos de participación son servicios externos. No representan dinero.
+        Los créditos de participación son servicios externos. No representan
+        dinero.
       </p>
       <div className="mt-4 flex gap-3">
         <button
@@ -110,7 +114,9 @@ export function PredictionModal({ marketId, marketStatus }: PredictionModalProps
       >
         {disabled ? "Mercado cerrado" : "Confirmar participación"}
       </Button>
-      {message ? <p className="mt-3 text-sm text-neutral-700">{message}</p> : null}
+      {message ? (
+        <p className="mt-3 text-sm text-neutral-700">{message}</p>
+      ) : null}
     </div>
   );
 }
