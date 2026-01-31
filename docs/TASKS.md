@@ -23,52 +23,64 @@ This document contains all actionable implementation tasks extracted from the do
 
 ### 1.1 Create Tables
 
-- [ ] **DB-01**: Create `markets` table
+- [x] **DB-01**: Create `markets` table
 
-  - Fields: `id`, `question`, `subject_type`, `resolves_at`, `verification_source_url`, `verification_required`, `status`, `created_at`
-  - Status ENUM: `open`, `resolved`, `disabled`
+  - Fields: `id`, `source_topic_id`, `topic_text`, `topic_slug`, `question_text`, `description`, `subject_type`, `verification_required`, `verification_source_url`, `starts_at`, `ends_at`, `status`, `resolution_rule_id`, `resolved_outcome`, `resolved_at`, `resolution_evidence`, `created_at`, `updated_at`
+  - Status ENUM: `open`, `resolved`, `canceled`
   - Subject type ENUM: `public_figure`, `organization`, `protocol`, `event`
   - `verification_required` defaults to `true`
+  - See: [docs/results/DB-01.md](results/DB-01.md)
 
-- [ ] **DB-02**: Create `predictions` table
+- [x] **DB-02**: Create `predictions` table
 
-  - Fields: `id`, `user_id`, `market_id`, `side`, `tokens_used`, `created_at`
+  - Fields: `id`, `user_id`, `market_id`, `choice`, `action_type`, `idempotency_key`, `created_at`
+  - Choice ENUM: `yes`, `no`
   - Foreign key to `markets`
-  - Foreign key to auth.users
+  - Immutability trigger prevents UPDATE/DELETE
+  - See: [docs/results/DB-02.md](results/DB-02.md)
 
-- [ ] **DB-03**: Create `token_ledger` table (append-only, immutable)
+- [x] **DB-03**: Create `token_ledger` table (append-only, immutable)
 
-  - Fields: `id`, `user_id`, `vudy_tx_id`, `action`, `amount`, `related_prediction_id`, `created_at`
-  - UNIQUE constraint on `vudy_tx_id`
-  - Action ENUM: `consume`
-  - No UPDATE or DELETE allowed
+  - Fields: `id`, `user_id`, `market_id`, `prediction_id`, `vudy_tx_id`, `entry_type`, `amount`, `created_at`
+  - UNIQUE index on `vudy_tx_id`
+  - Entry type ENUM: `consume`
+  - Immutability trigger prevents UPDATE/DELETE
+  - See: [docs/results/DB-03.md](results/DB-03.md)
 
-- [ ] **DB-04**: Create `resolution_rules` table
+- [x] **DB-04**: Create `resolution_rules` table
 
-  - Fields: `id`, `market_id`, `rule_type`, `source_url`, `expected_outcome`, `created_at`
+  - Fields: `id`, `name`, `source`, `rule_json`, `deterministic`, `created_at`
+  - Referenced by `markets.resolution_rule_id`
   - Deterministic resolution logic storage
+  - See: [docs/results/DB-04.md](results/DB-04.md)
 
-- [ ] **DB-05**: Create `market_snapshots` table
+- [x] **DB-05**: Create `market_snapshots` table
 
-  - Fields: `id`, `market_id`, `yes_tokens`, `no_tokens`, `participants`, `taken_at`
+  - Fields: `id`, `market_id`, `snapshot_at`, `total_predictions`, `yes_count`, `no_count`
   - Time-series data for aggregate consensus
+  - See: [docs/results/DB-05.md](results/DB-05.md)
 
-- [ ] **DB-06**: Create `user_roles` table
+- [x] **DB-06**: Create `user_roles` table
 
-  - Fields: `id`, `user_id`, `role`, `created_at`
-  - Role ENUM: `user`, `admin`
+  - Fields: `user_id` (PK), `role`, `created_at`
+  - Role CHECK: `admin`, `user`
+  - JWT claim is source of truth
+  - See: [docs/results/DB-06.md](results/DB-06.md)
 
-- [ ] **DB-07**: Create `reputation_points` table (separate from tokens)
-  - Fields: `id`, `user_id`, `market_id`, `points`, `created_at`
-  - No reuse of token logic
+- [x] **DB-07**: Create `reputation_points` table (separate from tokens)
+  - Fields: `id`, `user_id`, `market_id`, `points`, `reason`, `created_at`
+  - Reason ENUM: `market_resolution`
+  - Unique index on `(user_id, market_id, reason)`
+  - Helper function: `award_reputation_points()`
+  - See: [docs/results/DB-07.md](results/DB-07.md)
 
 ### 1.2 Constraints & Indexes
 
-- [ ] **DB-08**: Add primary keys to all tables
-- [ ] **DB-09**: Add foreign key constraints
-- [ ] **DB-10**: Add CHECK constraints (status values, positive amounts, etc.)
-- [ ] **DB-11**: Add indexes for common queries (market_id, user_id, status)
-- [ ] **DB-12**: Add comments explaining table/column intent
+- [x] **DB-08**: Add primary keys to all tables - See: [docs/results/DB-08.md](results/DB-08.md)
+- [x] **DB-09**: Add foreign key constraints - See: [docs/results/DB-09.md](results/DB-09.md)
+- [x] **DB-10**: Add CHECK constraints (status values, positive amounts, etc.) - See: [docs/results/DB-10.md](results/DB-10.md)
+- [x] **DB-11**: Add indexes for common queries (market_id, user_id, status) - See: [docs/results/DB-11.md](results/DB-11.md)
+- [x] **DB-12**: Add comments explaining table/column intent - See: [docs/results/DB-12.md](results/DB-12.md)
 
 ---
 
