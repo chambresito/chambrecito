@@ -43,10 +43,12 @@ export async function POST(req: NextRequest) {
 
   if (isDevBypass) {
     const devBypassSecret = process.env.DEV_BYPASS_SECRET;
-    if (!devBypassSecret) {
-      return jsonResponse(500, { error: "missing_dev_bypass_secret" });
+    const anonKey = process.env.SUPABASE_ANON_KEY;
+    if (!devBypassSecret || !anonKey) {
+      return jsonResponse(500, { error: "missing_dev_bypass_config" });
     }
-    authHeader = `Bearer ${devBypassSecret}`;
+    // Use anon key for Supabase gateway auth, shared secret in body for our bypass logic
+    authHeader = `Bearer ${anonKey}`;
     extraBody = { dev_user_id: authResult.id, dev_bypass_secret: devBypassSecret };
   } else {
     const header = req.headers.get("Authorization");
