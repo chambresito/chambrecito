@@ -36,9 +36,24 @@ export async function POST(req: NextRequest) {
     return jsonResponse(500, { error: "missing_supabase_url" });
   }
 
-  const authHeader = req.headers.get("Authorization");
-  if (!authHeader) {
-    return jsonResponse(401, { error: "missing_auth" });
+  const isDevBypass = process.env.DEV_BYPASS_AUTH === "true";
+
+  let authHeader: string;
+  let extraBody: Record<string, string> = {};
+
+  if (isDevBypass) {
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!serviceRoleKey) {
+      return jsonResponse(500, { error: "missing_service_role_key" });
+    }
+    authHeader = `Bearer ${serviceRoleKey}`;
+    extraBody = { dev_user_id: authResult.id };
+  } else {
+    const header = req.headers.get("Authorization");
+    if (!header) {
+      return jsonResponse(401, { error: "missing_auth" });
+    }
+    authHeader = header;
   }
 
   const edgeFunctionUrl = `${supabaseUrl}/functions/v1/placePrediction`;
@@ -52,7 +67,8 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify({
       market_id: body.market_id,
       choice: body.choice,
-      amount: body.amount
+      amount: body.amount,
+      ...extraBody
     })
   });
 

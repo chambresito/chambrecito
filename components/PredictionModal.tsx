@@ -29,19 +29,16 @@ export function PredictionModal({
     const session = await supabase.auth.getSession();
     const accessToken = session.data.session?.access_token;
 
-    if (!accessToken) {
-      setMessage("Necesitas iniciar sesión para participar.");
-      return;
-    }
+    const url = "/api/predictions";
 
-    const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/placePrediction`;
+    const headers: HeadersInit = { "Content-Type": "application/json" };
+    if (accessToken) {
+      headers["Authorization"] = `Bearer ${accessToken}`;
+    }
 
     const response = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
+      headers,
       body: JSON.stringify({
         market_id: marketId,
         choice,

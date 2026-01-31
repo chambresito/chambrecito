@@ -15,6 +15,7 @@ type PlacePredictionPayload = {
   market_id: string;
   choice: "yes" | "no";
   amount: number;
+  dev_user_id?: string;
 };
 
 const ACTION_TYPE = "predict";
@@ -51,23 +52,35 @@ Deno.serve(async (req) => {
     );
   }
 
-  const authClient = createClient(supabaseUrl, anonKey, {
-    global: {
-      headers: { Authorization: `Bearer ${token}` }
-    },
-    auth: { persistSession: false }
-  });
-
-  const { data: userData, error: userError } = await authClient.auth.getUser();
-  if (userError || !userData?.user) {
-    return jsonResponse(401, { error: "invalid_session" });
-  }
-
+  // Parse payload first to check for dev_user_id
   let payload: PlacePredictionPayload;
   try {
     payload = await req.json();
   } catch {
     return jsonResponse(400, { error: "invalid_json" });
+  }
+
+  // Determine user ID - either from dev bypass or JWT validation
+  let userId: string;
+  const isServiceRole = token === serviceRoleKey;
+
+  if (isServiceRole && payload.dev_user_id) {
+    // Service role call with dev user ID override
+    userId = payload.dev_user_id;
+  } else {
+    // Normal flow: validate JWT and get user
+    const authClient = createClient(supabaseUrl, anonKey, {
+      global: {
+        headers: { Authorization: `Bearer ${token}` }
+      },
+      auth: { persistSession: false }
+    });
+
+    const { data: userData, error: userError } = await authClient.auth.getUser();
+    if (userError || !userData?.user) {
+      return jsonResponse(401, { error: "invalid_session" });
+    }
+    userId = userData.user.id;
   }
 
   if (!payload?.market_id || !payload?.choice || !payload?.amount) {
@@ -101,7 +114,7 @@ Deno.serve(async (req) => {
   }
 
   const idempotencyKey = await sha256Hex(
-    `${userData.user.id}:${payload.market_id}:${ACTION_TYPE}`
+    `${userId}:${payload.market_id}:${ACTION_TYPE}`
   );
 
   // Build headers based on available credentials
@@ -116,7 +129,7 @@ Deno.serve(async (req) => {
     method: "POST",
     headers: authHeaders,
     body: JSON.stringify({
-      user_id: userData.user.id,
+      user_id: userId,
       market_id: payload.market_id,
       amount: payload.amount,
       action_type: ACTION_TYPE,
@@ -136,7 +149,7 @@ Deno.serve(async (req) => {
   }
 
   const { data, error } = await serviceClient.rpc("place_prediction_tx", {
-    p_user_id: userData.user.id,
+    p_user_id: userId,
     p_market_id: payload.market_id,
     p_choice: payload.choice,
     p_amount: payload.amount,
