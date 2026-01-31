@@ -88,15 +88,15 @@ This document contains all actionable implementation tasks extracted from the do
 
 ### 2.1 User Policies
 
-- [ ] **RLS-01**: Enable RLS on all tables
-- [ ] **RLS-02**: Create SELECT policy for `markets` (users can read open markets)
-- [ ] **RLS-03**: Create SELECT policy for `market_snapshots` (users can read)
-- [ ] **RLS-04**: Create INSERT policy for `predictions` (only if market is open)
-- [ ] **RLS-05**: Block UPDATE/DELETE for users on all tables
+- [x] **RLS-01**: Enable RLS on all tables
+- [x] **RLS-02**: Create SELECT policy for `markets` (users can read open markets)
+- [x] **RLS-03**: Create SELECT policy for `market_snapshots` (users can read)
+- [x] **RLS-04**: Create INSERT policy for `predictions` (only if market is open)
+- [x] **RLS-05**: Block UPDATE/DELETE for users on all tables
 
 ### 2.2 Admin Policies
 
-- [ ] **RLS-06**: Create admin policies based on JWT role claims
+- [x] **RLS-06**: Create admin policies based on JWT role claims
   - Admin can insert markets
   - Admin can update market status (resolve/disable)
 
