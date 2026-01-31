@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   const allowedSortFields = ["ends_at", "starts_at", "created_at", "topic_text"];
   const sortField = allowedSortFields.includes(sort) ? sort : "ends_at";
 
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
 
   const { data: markets, error, count } = await supabase
     .from("markets")

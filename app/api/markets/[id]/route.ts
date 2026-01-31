@@ -14,7 +14,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     return jsonResponse(400, { error: "missing_market_id" });
   }
 
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
 
   const { data: market, error } = await supabase
     .from("markets")

@@ -18,7 +18,7 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
   const from = searchParams.get("from");
   const to = searchParams.get("to");
 
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
 
   let query = supabase
     .from("market_snapshots")

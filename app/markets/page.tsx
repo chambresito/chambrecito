@@ -2,7 +2,7 @@ import { MarketCard } from "@/components/MarketCard";
 import { createSupabaseServerClient } from "@/lib/supabaseServer";
 
 export default async function MarketsPage() {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
     .from("markets")

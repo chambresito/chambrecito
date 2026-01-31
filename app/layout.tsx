@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Header } from "@/components/Header";
 import "./globals.css";
 
 export const metadata = {
@@ -9,7 +10,10 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="es">
-      <body className="min-h-screen">{children}</body>
+      <body className="min-h-screen bg-neutral-50">
+        <Header />
+        {children}
+      </body>
     </html>
   );
 }
